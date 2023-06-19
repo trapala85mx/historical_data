@@ -1,3 +1,4 @@
+import argparse
 from datetime import datetime
 from database.daos import TableDAO
 from database.daos import DataBaseDAO
@@ -9,17 +10,17 @@ from extraction.extrac_data import update_historical_data
 from extraction.extrac_data import get_last_data_updateable
 
 
-def difference_between_times(last_posible_update , last_data):
+def difference_between_times(last_posible_update, last_data):
     last_posible_update_dt = datetime.fromtimestamp(last_posible_update / 1000)
     last_data_dt = datetime.fromtimestamp(last_data / 1000)
     diferencia_minutos = (last_posible_update_dt - last_data_dt).total_seconds() / 60
     return diferencia_minutos
 
-def run():
+def run(symbol :str, timeframe :str):
     try:
         # Daos de moneda
-        symbol = "cfxusdt"
-        timeframe = "15m"
+        symbol = symbol.lower()
+        timeframe = timeframe
         exchange_info = get_exchange_info()
         # TO DO: 
         #       Crear una nueva funcionalidad y base de datos para obtener y actualizar
@@ -64,10 +65,26 @@ def run():
                 data.pop()
                 data = data_for_database(data)
                 table_dao.insert_data(data)
-        print("Data Extradia y Guardad")
+        print("Data Extradia y Guardada")
     finally:
         database_connection.close_connection()
     
 if __name__ == '__main__':
-    database_connection = DatabaseConnection()
-    run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--asset", help="Especifica el nombre de la cryptomoneda")
+    parser.add_argument("-t", "--timeframe", help="Especifica la temporalidad a extraer información")
+    args = parser.parse_args()
+
+    try:
+        assert not args.asset is None or not args.timeframe is None, "Ingresa datos válidos"
+    except AssertionError as e:
+        print(e)
+    else:
+        try:
+            database_connection = DatabaseConnection()
+            run(args.asset, args.timeframe)
+        except TypeError as e:
+            print("Falta ingresar los flags para la crypto y temporalidad")
+            parser.print_help()
+        finally:
+            database_connection.close_connection()
