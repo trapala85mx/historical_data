@@ -4,29 +4,38 @@ It uses the python-binance library from sammchardy among other libraries
 
 # About this version
 This is still a preeliminar version but it is functional
-To select the crypto to retrieve data ypu shoul write the ticker symbol in lowercase with the "usdt"
-int he line 21 and the timeframe on main.py
-
-In coming versions will automatically donwload and update all ticker symbols in Binance Futures
 
 # Requirements
-It is made on Python 3.11
-For running use terminal 
-1. Create you virtual environment and activate it
-2. Locate in historical_data folder and execute 
+- Python 3.11
+- PostgreSql 15. If you want to use another DataBase you need
+  to modify database/connection_db.py
+- clone repository
+- move to historical_data foler
+```Shell
+cd historical_data
+```
+- Install requirements
 ```Shell
 pip install -r requirements.txt
 ```
-3. Change the ticker symbol in line 21 in main.py and the timeframe
-4. run main file
+- execute
 ```shell
-python main.py
+python main.py -a <symbol> -t <timeframe>
 ```
-This script uses implements postgres connection
+if something goes wrong mayb eyou need to execute from parent folder, so you need to
+```shell
+cd ..
+python historical_data/main.py -a <symbol> -t <timeframe>
+```
+The timeframes availables are:
+1m, 3m, 5m, 15m, 1h, 4h, 1d
+If you want to add more timeframes ypu should add it int extraction/extrac_data.py line 8 according to the
+BinanceAPI Documentation in the General Info Section - Public Endpoints info - Kline/Candlestick chart intervals
 
 # Configuration
-For this script to work, you need to create the .env file that will be used by python-decouple library
-inside historical_data folder execute:
+For this script to work, you need to create the .env file that will be used by python-decouple library.
+
+Inside historical_data folder execute:
 ```shell
 touch .env
 ```
@@ -38,7 +47,9 @@ DB_PASSWORD = "your password"
 DB_HOST = "your host"
 DB_PORT = your port for Postgres Database, default 5432
 ```
+# Example
 
-# Nest Updates
-For the next updates will be automatically download and update the data just by running main.py
-And the las update will be for store the script in a server to automatically search for updated and new cryptos every day
+Getting btc historical data for 15 minutes timeframe
+```Shell
+python historical_data/main.py -a btcusdt -t 15m
+```

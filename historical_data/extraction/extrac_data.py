@@ -3,9 +3,17 @@ import pytz
 from datetime import datetime
 from binance import AsyncClient, Client
 from binance.exceptions import BinanceAPIException, BinanceRequestException
-from binance.enums import KLINE_INTERVAL_15MINUTE
 from typing import List
 
+INTERVALS = {
+        "1m": Client.KLINE_INTERVAL_1MINUTE,
+        "3m": Client.KLINE_INTERVAL_3MINUTE,
+        "5m": Client.KLINE_INTERVAL_5MINUTE,
+        "15m": Client.KLINE_INTERVAL_15MINUTE,
+        "1h": Client.KLINE_INTERVAL_1HOUR,
+        "4h": Client.KLINE_INTERVAL_4HOUR,
+        "1d": Client.KLINE_INTERVAL_1DAY
+    }
 
 def get_today_timestamp():
     actual= datetime.now(pytz.utc).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -50,10 +58,8 @@ def get_on_board_timestamp(asset:str, exchange_info:dict):
 
 def get_historical_data(asset:str, timeframe:str, exchange_info:dict) -> List[list]:
     symbol = asset.upper()
-    intervals = {
-        "15m": KLINE_INTERVAL_15MINUTE
-    }
-    interval = intervals[timeframe]
+    
+    interval = INTERVALS[timeframe]
     start_str = get_on_board_timestamp(asset.lower(), exchange_info)
     end_str = get_last_data_updateable()
     client = Client()
@@ -63,10 +69,8 @@ def get_historical_data(asset:str, timeframe:str, exchange_info:dict) -> List[li
 
 def update_historical_data(asset:str, timeframe:str, start:int, end:int):
     symbol = asset.upper()
-    intervals = {
-        "15m": KLINE_INTERVAL_15MINUTE
-    }
-    interval = intervals[timeframe]
+
+    interval = INTERVALS[timeframe]
     client = Client()
     data = client.futures_historical_klines(symbol=symbol, interval=interval,
                                      start_str= start, end_str=str(end))
